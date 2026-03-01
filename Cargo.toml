@@ -5,6 +5,8 @@ edition = "2021"
 description = "Lite LLM training runtime skeleton for curriculum and replay workflows."
 license-file = "LICENSE"
 readme = "README.md"
+repository = "https://github.com/lite-llm/lite-llm-training"
+authors = ["Lite LLM Developers <litellm@dust.llc>"]
 rust-version = "1.70"
 
 [dependencies]

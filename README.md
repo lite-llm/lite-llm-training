@@ -1,20 +1,42 @@
 # lite-llm-training
 
-Independent Rust crate skeleton for Lite LLM: Training Runtime (Spec 031-040).
+Training runtime crate for Lite LLM (`SPEC-031` to `SPEC-040`).
 
-## Purpose
-This crate provides compile-ready interfaces and placeholder implementations for its spec layer.
+## Scope
+Implements deterministic training primitives:
 
-## Structure
-- src/lib.rs: module exports and public API surface
-- src/*.rs: layer-specific primitives and traits
+- curriculum tier expansion scheduling (`SPEC-031`)
+- hierarchical load-balancing and starvation controls (`SPEC-032`, `SPEC-033`)
+- optimizer abstraction, precision policy, and accumulation ordering (`SPEC-034`..`SPEC-036`)
+- sharded optimizer state and distributed checkpointing (`SPEC-037`, `SPEC-038`)
+- deterministic replay model (`SPEC-039`)
+- model evolution and compatibility checks (`SPEC-040`)
 
-## Build
-`ash
-cargo check
-`
+## Modules
+- `src/curriculum.rs`
+- `src/load_balancing.rs`
+- `src/starvation.rs`
+- `src/optimizer.rs`
+- `src/precision.rs`
+- `src/accumulation.rs`
+- `src/checkpoint.rs`
+- `src/replay.rs`
+- `src/versioning.rs`
+- `src/types.rs`
+- `src/error.rs`
 
-## Notes
-- This crate is intentionally standalone.
-- Runtime behavior is scaffolded, not production-complete.
-- License for this crate is in LICENSE.
+## Build and Test
+```bash
+cargo fmt
+cargo test
+```
+
+## Documentation
+- System docs: `../lite-llm-docs/README.md`
+- Testing guidance: `../lite-llm-docs/operations/testing-and-ci.md`
+
+## Changelog
+See `CHANGELOG.md`.
+
+## License
+See `LICENSE`.
