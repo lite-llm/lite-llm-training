@@ -1,0 +1,10 @@
+[package]
+name = "lite-llm-training"
+version = "0.1.0"
+edition = "2021"
+description = "Lite LLM training runtime skeleton for curriculum and replay workflows."
+license-file = "LICENSE"
+readme = "README.md"
+rust-version = "1.70"
+
+[dependencies]
