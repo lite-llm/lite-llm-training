@@ -7,6 +7,7 @@ pub mod optimizer;
 pub mod precision;
 pub mod replay;
 pub mod starvation;
+pub mod trainer;
 pub mod types;
 pub mod versioning;
 
@@ -41,6 +42,7 @@ pub use starvation::{
     analyze_starvation, no_update_probability_upper_bound, recommend_interventions,
     StarvationConfig, StarvationIntervention, StarvationReport, TierAssignmentStats,
 };
+pub use trainer::{adam_update, compute_gradients, cross_entropy_loss, Trainer, TrainerConfig};
 pub use types::{fnv64_hex, ExpertKey, TierId};
 pub use versioning::{
     assert_loadable, assess_compatibility, build_migration_plan, CompatibilityLevel,

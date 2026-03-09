@@ -10,3 +10,4 @@ authors = ["Lite LLM Developers <litellm@dust.llc>"]
 rust-version = "1.70"
 
 [dependencies]
+rand = "0.8"
