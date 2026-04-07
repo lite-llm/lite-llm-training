@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 use rand::Rng;
 
 #[derive(Debug, Clone)]
@@ -39,7 +40,7 @@ impl Trainer {
 pub fn cross_entropy_loss(predictions: &[f32], targets: &[u32]) -> f32 {
     let mut loss = 0.0f32;
     for (pred, &target) in predictions.iter().zip(targets.iter()) {
-        let pred = pred.max(1e-7);
+        let _pred = pred.max(1e-7);
         let idx = target as usize;
         if idx < predictions.len() {
             loss -= predictions[idx].ln();
