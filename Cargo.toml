@@ -2,7 +2,7 @@
 name = "lite-llm-training"
 version = "0.1.0"
 edition = "2021"
-description = "Lite LLM training runtime skeleton for curriculum and replay workflows."
+description = "Lite LLM training runtime: curriculum, optimizer, GPU-accelerated ops, and distributed checkpointing."
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/lite-llm/lite-llm-training"
@@ -11,3 +11,10 @@ rust-version = "1.70"
 
 [dependencies]
 rand = "0.8"
+# Async runtime for checkpoint I/O and concurrent training steps
+tokio = { version = "1", features = ["fs", "io-util", "sync", "rt"] }
+# Serialization for checkpoint save/load
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+# GPU backend (shared with inference)
+lite-llm-inference = { version = "0.1.0", path = "../lite-llm-inference" }

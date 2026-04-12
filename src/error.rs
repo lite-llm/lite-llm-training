@@ -8,6 +8,8 @@ pub enum TrainingError {
     InvalidInput(&'static str),
     ParseError(&'static str),
     IoError(String),
+    ParseErrorDynamic(String),
+    InvalidConfigDynamic(String),
     MissingShard(String),
     ChecksumMismatch {
         path: String,
@@ -27,6 +29,8 @@ impl fmt::Display for TrainingError {
             Self::InvalidState(msg) => write!(f, "invalid state: {msg}"),
             Self::InvalidInput(msg) => write!(f, "invalid input: {msg}"),
             Self::ParseError(msg) => write!(f, "parse error: {msg}"),
+            Self::ParseErrorDynamic(msg) => write!(f, "parse error: {msg}"),
+            Self::InvalidConfigDynamic(msg) => write!(f, "invalid config: {msg}"),
             Self::IoError(msg) => write!(f, "io error: {msg}"),
             Self::MissingShard(path) => write!(f, "missing shard: {path}"),
             Self::ChecksumMismatch {
@@ -48,5 +52,11 @@ impl Error for TrainingError {}
 impl From<std::io::Error> for TrainingError {
     fn from(err: std::io::Error) -> Self {
         Self::IoError(err.to_string())
+    }
+}
+
+impl From<serde_json::Error> for TrainingError {
+    fn from(err: serde_json::Error) -> Self {
+        Self::ParseErrorDynamic(err.to_string())
     }
 }

@@ -2,6 +2,7 @@ pub mod accumulation;
 pub mod checkpoint;
 pub mod curriculum;
 pub mod error;
+pub mod gpu_training;
 pub mod load_balancing;
 pub mod optimizer;
 pub mod precision;
@@ -26,6 +27,10 @@ pub use curriculum::{
     TierExpansionPlan,
 };
 pub use error::{TrainingError, TrainingResult};
+pub use gpu_training::{
+    compute_checkpoint_fingerprint, load_checkpoint_async, save_checkpoint_async, GpuTrainingStep,
+    StepMetrics, TrainingMetrics,
+};
 pub use load_balancing::{
     hierarchical_load_balancing_loss, HierarchicalRoutingUsage, LoadBalancingConfig,
     LoadBalancingMetrics,
