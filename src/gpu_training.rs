@@ -1,7 +1,19 @@
-//! GPU-accelerated training operations.
+//! GPU-accelerated training operations with automatic mixed precision.
 //!
-//! Provides accelerated forward/backward passes, gradient computation,
-//! and distributed checkpointing for the training runtime.
+//! Provides GPU-optimized training steps, async checkpoint I/O, and
+//! metrics tracking for distributed training workloads.
+//!
+//! # Key Types
+//!
+//! - [`GpuTrainingStep`] -- wraps an optimizer with AMP and gradient scaling
+//! - [`TrainingMetrics`] -- aggregates per-step training metrics
+//! - [`StepMetrics`] -- individual step measurement record
+//!
+//! # Features
+//!
+//! - Automatic mixed precision (AMP) with configurable gradient scaling
+//! - Async checkpoint save/load through the storage backend
+//! - Deterministic checkpoint fingerprinting for restore validation
 
 use crate::error::{TrainingError, TrainingResult};
 use crate::optimizer::{DType, Optimizer, Tensor as OptimizerTensor};
@@ -17,6 +29,10 @@ pub struct GpuTrainingStep<O: Optimizer> {
 }
 
 impl<O: Optimizer> GpuTrainingStep<O> {
+    /// Create a new GPU training step with the given optimizer and AMP setting.
+    ///
+    /// When AMP is enabled, the initial gradient scale is set to 65536.0
+    /// to prevent underflow during mixed-precision computation.
     pub fn new(optimizer: O, use_amp: bool) -> Self {
         Self {
             optimizer,
@@ -133,6 +149,8 @@ fn compute_cross_entropy_loss(logits: &[f32], targets: &[f32]) -> f32 {
 ///
 /// Saves optimizer state, model weights, and training metadata
 /// to a filesystem or cloud storage backend.
+///
+/// Returns a checkpoint fingerprint string on success.
 pub async fn save_checkpoint_async(
     checkpoint_dir: &str,
     step: u64,
@@ -175,7 +193,9 @@ pub async fn save_checkpoint_async(
     ))
 }
 
-/// Async checkpoint load.
+/// Async checkpoint load from the given path.
+///
+/// Returns a tuple of (optimizer_state, model_weights, metadata).
 pub async fn load_checkpoint_async(
     checkpoint_path: &str,
 ) -> TrainingResult<(Vec<u8>, Vec<u8>, serde_json::Value)> {
@@ -201,7 +221,9 @@ pub async fn load_checkpoint_async(
     Ok((optimizer_state, model_weights, metadata))
 }
 
-/// Compute a deterministic fingerprint of the checkpoint.
+/// Compute a deterministic fingerprint of checkpoint contents.
+///
+/// Uses FNV-1a hash of the combined optimizer state and model weights.
 pub fn compute_checkpoint_fingerprint(optimizer_state: &[u8], model_weights: &[u8]) -> String {
     let mut combined = Vec::with_capacity(optimizer_state.len() + model_weights.len());
     combined.extend_from_slice(optimizer_state);
@@ -210,6 +232,9 @@ pub fn compute_checkpoint_fingerprint(optimizer_state: &[u8], model_weights: &[u
 }
 
 /// Training metrics tracker for monitoring loss, throughput, and GPU utilization.
+///
+/// Aggregates per-step metrics and provides rolling average computations
+/// for monitoring training progress and performance.
 #[derive(Debug, Clone)]
 pub struct TrainingMetrics {
     pub steps: Vec<StepMetrics>,
@@ -227,16 +252,23 @@ impl Default for TrainingMetrics {
     }
 }
 
+/// Per-step training metrics record.
 #[derive(Debug, Clone)]
 pub struct StepMetrics {
+    /// Step number.
     pub step: u64,
+    /// Training loss for this step.
     pub loss: f32,
+    /// Learning rate used for this step.
     pub learning_rate: f32,
+    /// Tokens processed per second.
     pub tokens_per_second: f32,
+    /// GPU utilization ratio (0.0 to 1.0).
     pub gpu_utilization: f32,
 }
 
 impl TrainingMetrics {
+    /// Record a new step metrics entry.
     pub fn record(&mut self, metrics: StepMetrics) {
         self.total_tokens_seen += (metrics.tokens_per_second as u64).max(1);
         self.steps.push(metrics);
