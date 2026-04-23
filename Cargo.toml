@@ -16,5 +16,9 @@ tokio = { version = "1", features = ["fs", "io-util", "sync", "rt"] }
 # Serialization for checkpoint save/load
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-# GPU backend (shared with inference)
+# GPU backend (shared with inference crate)
+# Training uses inference's GPU ops for CUDA-accelerated training.
+# Architectural note: Ideally this would be in a separate lite-llm-gpu crate,
+# but the current design reuses inference's GPU backend.
+# This coupling could be broken by extracting GPU code to a new crate.
 lite-llm-inference = { version = "0.1.0", path = "../lite-llm-inference" }

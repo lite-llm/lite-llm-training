@@ -47,7 +47,11 @@ impl fmt::Display for TrainingError {
     }
 }
 
-impl Error for TrainingError {}
+impl Error for TrainingError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
+}
 
 impl From<std::io::Error> for TrainingError {
     fn from(err: std::io::Error) -> Self {
